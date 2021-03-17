@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board">
+
+	<!-- insert -->
+	<insert id="insertBoard" parameterType="boardDTO">
+		insert into BOARD
+		(num,writer,subject,content,reg_date,id)
+		values
+		(BOARD_SEQ.nextval,#{writer},#{subject},#{content},
+		sysdate,#{id,jdbcType=VARCHAR})
+	</insert>
+
+	<select id="board" resultType="boardDTO" parameterType="String">
+		select *
+		from BOARD where id=#{value,jdbcType=VARCHAR}
+	</select>
+
+	<select id="listAll" resultType="boardDTO"
+		parameterType="boardDTO">
+		<!-- select * from BOARD order by reg_date desc -->
+
+		<!-- select * from (select rownum r,e. * from BOARD e where order by reg_date 
+			desc and rownum<=${end} ) t where r>${start}; -->
+		<![CDATA[ 
+		SELECT * FROM (SELECT tt.*, ROWNUM AS rowno FROM (SELECT t.* FROM BOARD t ORDER BY reg_date DESC) tt
+         WHERE ROWNUM <= #{endRow} ) table_alias WHERE table_alias.rowno >= #{startRow}
+			]]>
+	</select>
+
+	<select id="boardCount" resultType="int">
+		select count(*)from BOARD
+	</select>
+
+	<update id="update" parameterType="boardDTO">
+		update BOARD
+		<set>
+			<if test="writer != null">writer=#{writer},</if>
+			<if test="subject != null">subject=#{subject},</if>
+			<if test="content != null">content=#{content},</if>
+		</set>
+		where num=#{num,jdbcType=VARCHAR}
+	</update>
+
+	<delete id="delete" parameterType="boardDTO">
+		delete from BOARD where num=#{value}
+	</delete>
+
+	<select id="detail" resultType="boardDTO" parameterType="int">
+		select *
+		from BOARD where num = #{num}
+	</select>
+
+</mapper>
+
